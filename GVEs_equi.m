@@ -1,15 +1,20 @@
-function statedot = GVEs_equi(t, state, mu, perturb)
+function statedot = GVEs_equi(t, state, mu, perturb, m0, mdot)
 % GVES_EQUINOCTIAL  Calculates state derivative via equinoctial GVEs.
 %
 %   INPUT: 
 %       t: current time step in integration, unused here [s]
 %       state = [p f g h k L]': current state, [km, rad]
 %       mu: gravitational parameter of central body [km^3/s^2]
-%       perturb = [f_R f_T f_N]': specific perturbing force 
-%           in RTN-frame, [km/s^2]
+%       perturb = [f_R f_T f_N]': perturbing force 
+%           in RTN-frame, [kg*km/s^2]
+%       m0: wet mass of satellite [kg]
+%       mdot: rate of change of mass of sat during C.T. [kg/s]
 %   OUTPUT:
 %       statedot = d/dt (state), [km/s,rad/s]
-
+    
+    m = m0 - mdot * t;
+    perturb = perturb / m;
+    
     p = state(1); f = state(2); g = state(3);
     h = state(4); k = state(5); L = state(6);
     
