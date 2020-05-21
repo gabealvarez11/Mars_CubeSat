@@ -2,34 +2,24 @@ function [dt, v_arr] = run_trial(oe0,F,F_dt,m_struct,Isp)
 % Propagator for along-track constant thrust, using orbital elements and GVEs to provide state change
 % INPUTS:
 % ---------------------------------------
-% tstep: size of time steps in propogation, in seconds
 % oe0: [a, e, i, raan, w, M0], all angles in radians
-% f_dir: unit vector with components [fR fT fN] (radial tangential normal) 
-%       giving the direction of the continuous thrust vector
-% f_dt: duration of thrust period, seconds
+% F: vector with components [FR FT FN] (radial tangential normal) 
+%       giving the direction of the continuous thrust vector, in kN
+% F_dt: duration of thrust period, seconds
 % m_struct: structural mass (dry mass) of spacecraft, in kg
-% Isp: specific impulse of propulsion system, in m/s (Isp*g0)
-% opts: length-4 array whose non-zero elements reset the defaults 
-%       options [mu_sun,tmax,Mars_escape_vel,close_2_Mars_tol]
-%       mu_sun: center body grav parameter, km3/s2
-%       tmax: cut-off time for simulation, sec
-%       Mars_escape_vel: max relative velocity to Mars to be captured, km/s
-%       close_2_Mars_tol: dist from Mars at which to cut off simulation, km
+% Isp: specific impulse of propulsion system, in km/s (Isp*g0)
 %
 % OUTPUTS:
 % ---------------------------------------
 % dt: time-of-flight from Earth departure to Mars capture arrival, in sec
-% v_ex: velocity relative to Mars upon arrival, in km/s
-% error: string explaining why simulation cut off ('tooFast' or 'tooLong',
-%           indicating too much excess velocity at arrival or a failure to
-%           reach Mars orbital radius before tmax was reached. Empty
-%           if trajectory was successful).
+% v_arr: velocity relative to Mars upon arrival, in km/s
+% error: string explaining why simulation cut off (0 = no error, 1 = insufficient ).
     %% Constants/Defaults
     year2sec= 31556952;
     aMars = 227939200; %km
     mu_sun = 1.32712440018e11; %km3/s2
     tmax = max(10*year2sec,max(F_dt)); %sec, max duration of simulation before cut-off
-    tstep = tmax/1e5;
+    tstep = tmax/1e4;
     %% Calculate Values
     vMars = sqrt(mu_sun/aMars);
     mdot = norm(F)/Isp;
@@ -84,7 +74,7 @@ function [dt, v_arr] = run_trial(oe0,F,F_dt,m_struct,Isp)
                 plot(r_eci(:,1),r_eci(:,2),'g','DisplayName','Continuous Thrust');
             else
                 plot(r_eci(1:cuti,1),r_eci(1:cuti,2),'g','DisplayName','Continuous Thrust');
-                plot(r_eci(cuti+1:end,1),r_eci(cuti+1:end,2),'k','DisplayName','Ballistic');
+                plot(r_eci(cuti:end,1),r_eci(cuti:end,2),'k','DisplayName','Ballistic');
             end
             axis equal; xlabel('Heliocentric X, km'); ylabel('Heliocentric Y, km'); 
             title('Low-Thrust Earth to Mars Trajectory'); legend;
