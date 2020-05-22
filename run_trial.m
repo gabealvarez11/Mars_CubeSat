@@ -1,4 +1,4 @@
-function [dt, v_arr,errors] = run_trial(oe0,F,F_dt,m_struct,Isp)
+function [dt, v_arr,errors,data_out] = run_trial(oe0,F,F_dt,m_struct,Isp)
 % Propagator for along-track constant thrust, using orbital elements and GVEs to provide state change
 % INPUTS:
 % ---------------------------------------
@@ -29,7 +29,7 @@ function [dt, v_arr,errors] = run_trial(oe0,F,F_dt,m_struct,Isp)
     aMars = 227939200; %km
     mu_sun = 1.32712440018e11; %km3/s2
     tmax = max(10*year2sec,max(F_dt)); %sec, max duration of simulation before cut-off
-    tstep = tmax/1e5;
+    tstep = tmax/1e4;
     %% Calculate Values
     vMars = sqrt(mu_sun/aMars);
     mdot = norm(F)/Isp;
@@ -38,7 +38,7 @@ function [dt, v_arr,errors] = run_trial(oe0,F,F_dt,m_struct,Isp)
     dt = zeros(size(F_dt)); %initialize TOF vector
     v_arr = zeros(size(F_dt)); %initialize excess velocity vector
     errors = zeros(size(F_dt));
-    
+    data_out = cell(size(F_dt));
     E0 = EfromM(oe0(6),oe0(2),1E-10);
     oe0(6) = nufromE(E0,oe0(2));
     oe0 = kep2equi(oe0);
@@ -71,7 +71,7 @@ function [dt, v_arr,errors] = run_trial(oe0,F,F_dt,m_struct,Isp)
             tof = -1;
             sim_error= 2; %simulation timed out before event occured
         end
-        
+        data_out{j} = oe_out;
         curr_rv = equi2rv(oe_out(length(oe_out),:),mu_sun);
         vf = curr_rv(4:6);
         dt(j) = tof(1);
@@ -80,32 +80,5 @@ function [dt, v_arr,errors] = run_trial(oe0,F,F_dt,m_struct,Isp)
         
         v_arr(j) = norm(vf - vMars*[-sin(Lf); cos(Lf); 0]); %get relative speed to Mars (circular)
         errors(j) = sim_error;
-        % Plot test
-%             figure(); hold on;
-%             r_eci = zeros(size(oe_out,1),3);
-%             for k = 1:length(oe_out)
-%                rv1 = equi2rv(oe_out(k,:),mu_sun);
-%                r_eci(k,:) = rv1(1:3);
-%             end
-%             aEarth = 149.60e6; %km
-%             viscircles([0 0],aEarth,'Color','b','LineStyle','--','LineWidth',1);
-%             viscircles([0 0],aMars,'Color','r','LineStyle','--','LineWidth',1);
-%             cuti = floor(t_cutoff/tstep);
-%             if cuti>floor(tof/tstep) && sim_error ~= 2
-%                 plot(r_eci(:,1),r_eci(:,2),'g','DisplayName','Continuous Thrust');
-%             else
-%                 plot(r_eci(1:cuti,1),r_eci(1:cuti,2),'g','DisplayName','Continuous Thrust');
-%                 plot(r_eci(cuti+1:end,1),r_eci(cuti+1:end,2),'k','DisplayName','Ballistic');
-%             end
-%             axis equal; xlabel('Heliocentric X, km'); ylabel('Heliocentric Y, km'); 
-%             title('Low-Thrust Earth to Mars Trajectory'); legend;
     end
-    %% Filter Arrival Speeds for Errors, Excessive Velocity
-    dt(errors~=0 & errors ~= 3) = NaN;
-    v_arr(errors~=0 & errors ~= 3) = NaN;
-
-
-
-    
-    
 end
