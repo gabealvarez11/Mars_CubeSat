@@ -3,7 +3,7 @@ clc; clear all; close all; set(0,'DefaultFigureWindowStyle','docked');
 Isp = 1200*9.81e-3; % [km/s]
 thrust = 16*1e-8; % [kg*km/s^2] = [mN]
 
-thrust = 9.2e-6; % override for testing
+%thrust = 9.2e-6; % override for testing
 
 mu_E = 3.986e5; % [km^3/s^2]
 
@@ -77,6 +77,9 @@ for j=1:numCurves
         % Or, use ESOC as benchmark.
         deviation(k) = norm(equi_rv(k,1:3) - kep_esoc_rv(k,1:3));
         
+        % Compare the two Keplerian methods.
+        %deviation(k) = norm(kep_vallado_rv(k,1:3) - kep_esoc_rv(k,1:3));
+        
         %specific_energy(k,1) = norm(equi_rv(k,4:6))^2/2 - mu_E/norm(equi_rv(k,1:3));
         %specific_energy(k,2) = norm(kep_esoc_rv(k,4:6))^2/2 - mu_E/norm(kep_esoc_rv(k,1:3));
         
@@ -89,7 +92,7 @@ for j=1:numCurves
     
     figure(1);
     plot(t_out/86400,deviation,"DisplayName", dir{j});
-    title("Accumulated Propagation Error, JPL Equinoctial Against ESOC Keplerian")
+    title("Accumulated Propagation Error, Vallado Keplerian Against ESOC Keplerian")
     legend;
     xlabel("t [days]");
     ylabel("Magnitude of Position Error [km]")
