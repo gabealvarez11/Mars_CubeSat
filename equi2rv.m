@@ -1,7 +1,7 @@
 function inertial_rv = equi2rv(state, mu)
-% KEP2EQUI  Converts equinoctial elements to intertial position, velocity.
+% EQUI2RV  Converts equinoctial elements to intertial position, velocity.
 %   
-%   INPUT: equi = [p f g h k L], in [rad]
+%   INPUT: equi = [p f g h k L], in [km, rad]
 %          mu [km^3/s^2]
 %   OUTPUT: inertial_rv = [r v]', in [km, km/s]
 

@@ -2,7 +2,7 @@ function statedot = GVEs_equi(t, state, mu, perturb, m0, mdot)
 % GVES_EQUINOCTIAL  Calculates state derivative via equinoctial GVEs.
 %
 %   INPUT: 
-%       t: current time step in integration, unused here [s]
+%       t: current time step in integration [s]
 %       state = [p f g h k L]': current state, [km, rad]
 %       mu: gravitational parameter of central body [km^3/s^2]
 %       perturb = [f_R f_T f_N]': perturbing force 

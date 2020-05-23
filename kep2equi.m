@@ -13,7 +13,7 @@ function equi = kep2equi(kep)
     
     equi = zeros(6,1);
     
-    equi(1) = a * (1-e)^2;
+    equi(1) = a * (1-e^2);
     equi(2) = e * cos(arg_periapsis + raan);
     equi(3) = e * sin(arg_periapsis + raan);
     equi(4) = tan(i/2) * cos(raan);
