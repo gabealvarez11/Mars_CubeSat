@@ -3,6 +3,8 @@ clc; clear all; close all; set(0,'DefaultFigureWindowStyle','docked');
 Isp = 1200*9.81e-3; % [km/s]
 thrust = 16*1e-8; % [kg*km/s^2] = [mN]
 
+thrust = 9.2e-6; % override for testing
+
 mu_E = 3.986e5; % [km^3/s^2]
 
 F = zeros(4,3);
@@ -11,6 +13,9 @@ F(2,2) = thrust;
 F(3,3) = thrust;
 dir = ["Radial Thrust" "Tangential Thrust" "Normal Thrust" "No Perturbation"];
 dir = convertStringsToChars(dir);
+
+%F = [0 thrust 0];
+%dir = {'Tangential Thrust'};
 
 m0 = 10; % [kg]
 mdot = norm(thrust)/Isp; % [kg/s]
@@ -40,7 +45,9 @@ n = n + 1;
 
 numCurves = length(F(:,1));
 
-figure; hold on;
+figure(1); hold on;
+%figure(2); hold on;
+
 for j=1:numCurves
     
     [t_out, kep_vallado_out] = ode113(@(t,state) GVEs_kep_vallado(t,state,mu_E,F(j,:),m0,mdot),0:tstep:duration,oe0_kep,options);
@@ -55,6 +62,9 @@ for j=1:numCurves
     deviation = zeros(n,1);
     fractional_error = zeros(n,1);
     
+    % [EQUI KEP]
+    specific_energy = zeros(n,2);
+    
     for k=1:n
         equi_rv(k,:) = equi2rv(equi_out(k,:),mu_E);
         
@@ -67,6 +77,9 @@ for j=1:numCurves
         % Or, use ESOC as benchmark.
         deviation(k) = norm(equi_rv(k,1:3) - kep_esoc_rv(k,1:3));
         
+        %specific_energy(k,1) = norm(equi_rv(k,4:6))^2/2 - mu_E/norm(equi_rv(k,1:3));
+        %specific_energy(k,2) = norm(kep_esoc_rv(k,4:6))^2/2 - mu_E/norm(kep_esoc_rv(k,1:3));
+        
 %         fractional_error(k) = norm(equi_rv(k,1:3) - kep_esoc_rv(k,1:3))/...
 %             norm(equi_rv(k,1:3));
     end
@@ -74,17 +87,31 @@ for j=1:numCurves
     %figure('Name',[dir{j} ', mag'])
     %figure('Name',dir{j})
     
+    figure(1);
     plot(t_out/86400,deviation,"DisplayName", dir{j});
-    title("Accumulated Propagation Error")
+    title("Accumulated Propagation Error, JPL Equinoctial Against ESOC Keplerian")
     legend;
     xlabel("t [days]");
     ylabel("Magnitude of Position Error [km]")
+    
+    % Check orbital energy.
+    
+%     figure(2);
+%     plot(t_out/86400,specific_energy(:,1),"DisplayName", dir{j});
+%     title("Orbit Raising Effect of Continuous Thrust")
+%     legend;
+%     xlabel("t [days]");
+%     ylabel("Specific Energy [km^2/s^2]")
+    
+    % Fractional position error.
     
 %     figure('Name',[dir{j} ', %'])
 %     plot(t_out/86400,fractional_error,"DisplayName", dir{j});
 %     legend;
 %     xlabel("t [days]");
 %     ylabel("Fractional Position Error, r_{error} / r")
+    
+    % Plotting slices of trajectories.
     
 %     figure('Name',['Kep Traj. for ' dir{j} ', xy'])
 %     plot(kep_rv(:,1),kep_rv(:,2),".");
