@@ -9,8 +9,6 @@ F = zeros(4,3);
 F(1,1) = thrust;
 F(2,2) = thrust;
 F(3,3) = thrust;
-
-%F = [0 thrust 0];
 dir = ["Radial Thrust" "Tangential Thrust" "Normal Thrust" "No Perturbation"];
 dir = convertStringsToChars(dir);
 
@@ -68,8 +66,9 @@ for j=1:numCurves
 
         % Or, use ESOC as benchmark.
         deviation(k) = norm(equi_rv(k,1:3) - kep_esoc_rv(k,1:3));
-        fractional_error(k) = norm(equi_rv(k,1:3) - kep_esoc_rv(k,1:3))/...
-            norm(equi_rv(k,1:3));
+        
+%         fractional_error(k) = norm(equi_rv(k,1:3) - kep_esoc_rv(k,1:3))/...
+%             norm(equi_rv(k,1:3));
     end
     
     %figure('Name',[dir{j} ', mag'])
